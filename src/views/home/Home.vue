@@ -8,17 +8,19 @@
           class="el-menu-vertical-demo"
           background-color="#545c64"
           text-color="#fff"
-          active-text-color="#ffd04b">
+          router
+          active-text-color="#ffd04b"
+          :default-active="activePath">
           <el-sub-menu index="1">
             <template #title>
               <i style="color: #ffffff" class="el-icon-setting"></i>
               <span>文章管理</span>
             </template>
-            <el-menu-item index="1-1">
+            <el-menu-item index="/write" @click="saveNavState('/write')">
               <i class="el-icon-edit"></i>
-              <span>开始创作</span>
+              <span>增加新的</span>
             </el-menu-item>
-            <el-menu-item index="1-2">
+            <el-menu-item index="/edit" @click="saveNavState('/edit')">
               <i class="el-icon-edit-outline"></i>
               <span>修改已有</span>
             </el-menu-item>
@@ -42,7 +44,9 @@
         </el-menu>
       </el-aside>
       <el-container>
-        <el-main>Main</el-main>
+        <el-main>
+          <router-view />
+        </el-main>
         <el-footer>
           <i class="el-icon-lollipop"></i>
           <span>&nbsp;&nbsp;i&nbsp;ZhaoXin</span>
@@ -55,15 +59,30 @@
 <script>
 export default {
   name: "Home",
-  components: {}
+  components: {},
+  data() {
+    return {
+      activePath: ""
+    };
+  },
+  created() {
+    this.activePath = window.sessionStorage.getItem("activePath");
+  },
+  methods: {
+    saveNavState(activePath) {
+      window.sessionStorage.setItem("activePath", activePath);
+      this.activePath = activePath;
+    }
+  }
 };
 </script>
 
 <style scoped lang="scss">
 .el-header, .el-footer {
-  background-color: #86a8d3;
+  background-color: #6d84a2;
   color: #ffffff;
   text-align: center;
+  height: 60px;
   line-height: 60px;
 }
 
@@ -86,8 +105,7 @@ export default {
   background-color: #ffffff;
   color: var(--el-text-color-primary);
   text-align: center;
-  line-height: 160px;
-  height: 100vh;
+  min-height: calc(100vh - 120px);
 }
 
 body > .el-container {
