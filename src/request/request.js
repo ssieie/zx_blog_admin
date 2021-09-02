@@ -1,5 +1,6 @@
 import axios from "axios";
 import { ElMessage } from "element-plus";
+import { getSignParam } from "@/utils/utils";
 
 export function request(config) {
   const instance = axios.create({
@@ -8,6 +9,7 @@ export function request(config) {
   });
 
   instance.interceptors.request.use((config) => {
+    config.data = getSignParam(config.data)
     return config;
   });
 
