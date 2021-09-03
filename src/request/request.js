@@ -5,6 +5,7 @@ import { getSignParam } from "@/utils/utils";
 export function request(config) {
   const instance = axios.create({
     baseURL: "http://127.0.0.1:9999",
+    // baseURL: "http://47.109.17.168:9999",
     timeout: 10000
   });
 

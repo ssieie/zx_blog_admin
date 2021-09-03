@@ -36,8 +36,8 @@ export default {
   setup() {
     const router = useRouter();
     const param = reactive({
-      username: "admin",
-      password: "123123"
+      username: "zhaoxin",
+      password: "123456"
     });
     const rules = {
       username: [
@@ -56,13 +56,17 @@ export default {
       login.value.validate((valid) => {
         if (valid) {
           adminLogin({ ...param }).then(res => {
-            console.log(res);
+            if (res.code === 0) {
+              console.log(res);
+              ElMessage.success("登录成功");
+              window.sessionStorage.setItem("token", res.data.token);
+              router.replace("/welcome");
+            } else {
+              ElMessage.error(res.message);
+            }
           });
-          ElMessage.success("登录成功");
-          window.sessionStorage.setItem("token", "hahah");
-          // router.replace("/welcome");
         } else {
-          ElMessage.error("登录成功");
+          ElMessage.error("完整输入参数");
           return false;
         }
       });

@@ -11,7 +11,7 @@ export function getSignParam(data = {}) {
     arr.push(key);
   }
   arr.sort();
-  let str = "key=wodekey&";
+  let str = "key=ZhaoXin&";
   for (let i in arr) {
     str += arr[i] + "=" + data[arr[i]] + "&";
   }
