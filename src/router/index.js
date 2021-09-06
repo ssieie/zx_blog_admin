@@ -13,13 +13,19 @@ const routes = [
         path: "/welcome",
         name: "Welcome",
         component: () =>
-          import(/* webpackChunkName: "about" */ "../views/welcome/Welcome")
+          import(/* webpackChunkName: "Welcome" */ "../views/welcome/Welcome")
       },
       {
         path: "/write",
         name: "WriteArticle",
         component: () =>
-          import(/* webpackChunkName: "about" */ "../views/write/WriteArticle")
+          import(/* webpackChunkName: "WriteArticle" */ "../views/write/WriteArticle")
+      },
+      {
+        path: "/edit",
+        name: "EditView",
+        component: () =>
+          import(/* webpackChunkName: "EditView" */ "../views/edit/EditView")
       }
     ]
   },

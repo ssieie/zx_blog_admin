@@ -1,6 +1,6 @@
 <template>
   <el-container>
-    <el-header>BLOG Admin</el-header>
+    <el-header>BLOG Manage</el-header>
     <el-container>
       <el-aside width="210px">
         <el-menu
@@ -24,6 +24,10 @@
               <i class="el-icon-edit-outline"></i>
               <span>修改已有</span>
             </el-menu-item>
+            <el-menu-item index="/categroy" @click="saveNavState('/categroy')">
+              <i class="el-icon-s-operation"></i>
+              <span>分类管理</span>
+            </el-menu-item>
           </el-sub-menu>
           <el-sub-menu index="2">
             <template #title>
@@ -45,7 +49,11 @@
       </el-aside>
       <el-container>
         <el-main>
-          <router-view />
+          <router-view  v-slot="{ Component }">
+            <keep-alive include="WriteArticle">
+              <component :is="Component"></component>
+            </keep-alive>
+          </router-view>
         </el-main>
         <el-footer>
           <i class="el-icon-lollipop"></i>
@@ -104,7 +112,6 @@ export default {
 .el-main {
   background-color: #ffffff;
   color: var(--el-text-color-primary);
-  text-align: center;
   min-height: calc(100vh - 120px);
 }
 
