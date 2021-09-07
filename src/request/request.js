@@ -16,6 +16,7 @@ export function request(config) {
 
   instance.interceptors.response.use((res) => {
     if (res.status === 200) {
+      console.log(res.data);
       return res.data;
     } else {
       ElMessage({

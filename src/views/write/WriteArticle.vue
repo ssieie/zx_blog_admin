@@ -64,34 +64,7 @@ export default {
     const content = reactive({
       html: "",
       text: "",
-      json: [
-        {
-          "tag": "p",
-          "attrs": [],
-          "children": [
-            "欢迎使用 ",
-            {
-              "tag": "b",
-              "attrs": [],
-              "children": ["wangEditor"]
-            },
-            " 富文本编辑器"
-          ]
-        },
-        {
-          "tag": "p",
-          "attrs": [],
-          "children": [
-            {
-              "tag": "img",
-              "attrs": [
-                { "name": "src", "value": "xxx.png" },
-                { "name": "style", "value": "max-width:100%;" }
-              ]
-            }
-          ]
-        }
-      ]
+      json: ""
     });
     const arCategory = reactive([
       {
@@ -143,6 +116,7 @@ export default {
     };
 
     // editor
+    let arImageList = [];
     let instance;
     const SINA_URL_PATH = "http://img.t.sinajs.cn/t4/appstyle/expression/ext/normal";
     onMounted(() => {
@@ -166,6 +140,7 @@ export default {
       instance.config.zIndex = 0;
       instance.config.height = 600;
       instance.config.uploadImgServer = "http://127.0.0.1:9999/uploadImage";
+      // instance.config.uploadImgServer = "http://47.109.17.168:9999/uploadImage";
       instance.config.uploadImgMaxLength = 3;
       instance.config.uploadImgParams = getSignParam({
         token: window.sessionStorage.getItem("token")
@@ -177,6 +152,12 @@ export default {
         // 图片上传并返回了结果，图片插入已成功
         success: function(xhr) {
           console.log(JSON.parse(xhr.response));
+          let data = JSON.parse(xhr.response).data;
+          for (let i = 0; i < data.length; i++) {
+            if (!~arImageList.indexOf(data[i].alt)) {
+              arImageList.push(data[i].alt);
+            }
+          }
         },
         // 图片上传并返回了结果，但图片插入时出错了
         fail: function(xhr, editor, resData) {
@@ -211,6 +192,37 @@ export default {
 
     // 发布
     let sendTip = () => {
+      console.log(arImageList);
+      console.log(instance.txt.html());
+      content.html = instance.txt.html();
+      // 匹配出文件名
+      let imgReg = /<img.*?(?:>|\/>)/gi;
+      let altReg = /alt=\"(.*?)\"/gi;
+      let img = content.html.match(imgReg);
+      let imgList = []; // 保存在数据库 用
+      if (img !== null) {
+        for (const str of img) {
+          let alt = str.match(altReg)[0].match(/\"(.*?)\"/gi)[0];
+
+          if (!~alt.indexOf("[")) {
+            if (!~imgList.indexOf(alt)) {
+              imgList.push(alt.replace(/\"/gi, ""));
+            }
+          }
+
+        }
+      }
+      // 比较发布时 和 已经上传的文件数组
+      let diffImg = []; // 需要删除的项
+      for (let i = 0; i < arImageList.length; i++) {
+        if (!~imgList.indexOf(arImageList[i])) {
+          diffImg.push(arImageList[i]);
+        }
+      }
+      console.log(imgList);
+      console.log("Diff", diffImg);
+      return;
+
       if (!arTitle.value) {
         ElMessage.warning({
           message: "标题不能为空",

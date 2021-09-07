@@ -1,5 +1,5 @@
 <template>
-  <div class="welcome fl-c">Welcome</div>
+  <div class="welcome fl-c">BLOG Manage</div>
 </template>
 
 <script>

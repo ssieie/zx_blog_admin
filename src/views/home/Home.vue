@@ -1,6 +1,35 @@
 <template>
   <el-container>
-    <el-header>BLOG Manage</el-header>
+    <el-header>
+      <div class="fl-b">
+        <div>BLOG Manage</div>
+        <div class="fl-c banner-info">
+          <div>上次登录地点：<span>{{ loginInfo ? loginInfo.last_address : "***" }}
+            {{ weatherAddress ? weatherAddress.name : "" }}</span></div>
+          <div>上次登录时间：<span>{{ loginInfo ? loginInfo.last_time : "***" }}</span></div>
+          <div class="weather-icon" @mouseenter="weatherCardShow=true" @mouseleave="weatherCardShow=false">
+            <el-button :icon="getWeatherType()" size="small" circle></el-button>
+            <el-card :class="{'weather-card-ac':weatherCardShow}">
+              <div style="margin: 0;height: 45px;" class="fl-c">
+                <span>当前温度：<span>{{ weatherNow ? weatherNow.temp + "℃" : "--" }}</span></span>&nbsp;&nbsp;&nbsp;
+                <span>体感温度：<span>{{ weatherNow ? weatherNow.feels_like + "℃" : "--" }}</span></span>
+              </div>
+              <div style="margin: 0;height: 45px;" class="fl-c">
+                <span>当前天气：<span>{{ weatherNow ? weatherNow.text : "--" }}</span></span>&nbsp;&nbsp;&nbsp;
+                <span>相对湿度：<span>{{ weatherNow ? weatherNow.rh + "%" : "--" }}</span></span>
+              </div>
+              <div style="margin: 0;height: 45px;" class="fl-c">
+                <span>风力等级：<span>{{ weatherNow ? weatherNow.wind_class : "--" }}</span></span>&nbsp;&nbsp;&nbsp;
+                <span>风向描述：<span>{{ weatherNow ? weatherNow.wind_dir : "--" }}</span></span>
+              </div>
+              <div style="margin: 0;height: 45px;" class="fl-c">
+                <span>最后更新时间：<span>{{ weatherNow ? getEndTime(weatherNow.uptime) : "--" }}</span></span>
+              </div>
+            </el-card>
+          </div>
+        </div>
+      </div>
+    </el-header>
     <el-container>
       <el-aside width="210px">
         <el-menu
@@ -49,7 +78,7 @@
       </el-aside>
       <el-container>
         <el-main>
-          <router-view  v-slot="{ Component }">
+          <router-view v-slot="{ Component }">
             <keep-alive include="WriteArticle">
               <component :is="Component"></component>
             </keep-alive>
@@ -65,18 +94,81 @@
 </template>
 
 <script>
+import { getHomeInfo, getWeather } from "@/request/other";
+import { ElMessage } from "element-plus";
+
 export default {
   name: "Home",
   components: {},
   data() {
     return {
-      activePath: ""
+      activePath: "",
+      loginInfo: null,
+      weatherIcon: {
+        lightRain: "el-icon-light-rain", // 小雨
+        lightning: "el-icon-lightning", // 雷阵雨
+        heavyRain: "el-icon-heavy-rain", // 大雨
+        sunny: "el-icon-sunny", // 晴天
+        cloudy: "el-icon-cloudy", // 多云
+        cloudyAndSunny: "el-icon-cloudy-and-sunny", // 晴转多云
+        unKnow: "el-icon-loading"
+      },
+      weatherAddress: null,
+      weatherNow: null,
+      weatherCardShow: false
     };
   },
   created() {
     this.activePath = window.sessionStorage.getItem("activePath");
+    this.getViewInfo();
   },
   methods: {
+    getViewInfo() {
+      getHomeInfo({
+        token: window.sessionStorage.getItem("token")
+      }).then(res => {
+        if (res.code === 0) {
+          this.loginInfo = res.data;
+          res.data.last_address_code && this.getViewWeather(res.data.last_address_code);
+        } else {
+          ElMessage.warning(res.message);
+        }
+      });
+    },
+    getViewWeather(code) {
+      getWeather({
+        code
+      }).then(res => {
+        if (res.status === 0) {
+          this.weatherAddress = res.result.location;
+          this.weatherNow = res.result.now;
+        } else {
+          ElMessage.warning(res.message);
+        }
+      });
+    },
+    getEndTime(time) {
+      return time.slice(0, 4) + "年" + time.slice(4, 6) + "月" + time.slice(6, 8) + "日" + time.slice(8, 10) + "时" + time.slice(10, 12) + "分";
+    },
+    getWeatherType() {
+      if (this.weatherNow) {
+        switch (this.weatherNow.text) {
+          case "阴":
+            return this.weatherIcon.cloudy;
+            break;
+          case "晴":
+            return this.weatherIcon.sunny;
+            break;
+          case "多云":
+            return this.weatherIcon.cloudyAndSunny;
+            break;
+          default:
+            return this.weatherIcon.unKnow;
+        }
+      } else {
+        return this.weatherIcon.unKnow;
+      }
+    },
     saveNavState(activePath) {
       window.sessionStorage.setItem("activePath", activePath);
       this.activePath = activePath;
@@ -86,6 +178,34 @@ export default {
 </script>
 
 <style scoped lang="scss">
+.weather-icon {
+  position: relative;
+
+  .el-card {
+    position: absolute;
+    width: 340px;
+    top: 55px;
+    right: 0;
+    z-index: -9;
+    opacity: 0;
+    transition: all .4s;
+
+    span {
+      color: #333;
+      font-size: 14px;
+
+      span {
+        color: #4bbb07;
+      }
+    }
+  }
+
+  .weather-card-ac {
+    z-index: 9999;
+    opacity: 1;
+  }
+}
+
 .el-header, .el-footer {
   background-color: #6d84a2;
   color: #ffffff;
@@ -126,5 +246,15 @@ body > .el-container {
 
 .el-container:nth-child(7) .el-aside {
   line-height: 320px;
+}
+
+.banner-info {
+  div {
+    margin-left: 15px
+  }
+
+  span {
+    color: #eee9e9;
+  }
 }
 </style>
