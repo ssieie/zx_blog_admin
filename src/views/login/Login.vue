@@ -87,9 +87,7 @@ export default {
   position: relative;
   width: 100%;
   height: 100vh;
-  background-size: cover;
-  background-image: url("../../assets/images/login-bg.jpg");
-  background-repeat: no-repeat;
+  background-image: linear-gradient(90deg, #9890e3, #b1f4cf);
 }
 
 .ms-title {

@@ -132,6 +132,9 @@ export default {
           res.data.last_address_code && this.getViewWeather(res.data.last_address_code);
         } else {
           ElMessage.warning(res.message);
+          if (res.code === 9) {
+            this.$router.replace("/login");
+          }
         }
       });
     },
